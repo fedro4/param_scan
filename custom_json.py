@@ -51,6 +51,8 @@ def parse_item(it):
     return it
 
 def json_hook(o):
+    if o.has_key("value"): # if a dict has the entry "value", we assume that is what matters and ignore the rest, which may carry info for the generation of c++ param parsing
+        return o["value"] 
     for k, v in o.items():
         if isinstance(v, list):
             o[k] = [parse_item(it) for it in v]
