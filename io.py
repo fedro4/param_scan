@@ -11,6 +11,16 @@ from param_scan import ureg
 par_ext = ".params"
 run_ext = ".run"
 
+# maybe move the following to grace plot?
+class InDirectory:
+    def __init__(self, path):
+        self.path = path
+    def __enter__(self):
+        self.oldwd = os.getcwd()
+        os.chdir(os.path.dirname(self.path))
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        os.chdir(self.oldwd)
+
 def save(d, filename):
     fp = open(filename, "w")
     json.dump(d, fp, default=json_dumper, sort_keys=True, indent=4)
