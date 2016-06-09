@@ -84,7 +84,13 @@ def find_all_in_parents(path):
         IOError("'%s' not found up to file system boundary" % basename)
     return res
 
-
+def load_parameters_incrementally(path):
+    fns = find_all_in_parents(path)
+    pd = {}
+    for fn in fns[::-1]:
+        d = load(fn)
+        pd.update(d)
+    return pd
 
 
 def load_run(name):
