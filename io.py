@@ -66,6 +66,27 @@ def find_in_parents(path):
                 break
     raise IOError("'%s' not found up to file system boundary" % basename)
 
+def find_all_in_parents(path):
+    path = os.path.realpath(path)
+    dirname = os.path.dirname(path)
+    basename = os.path.basename(path)
+    
+    res = []
+
+    while True:
+        if os.path.exists(dirname + "/" + basename):
+            res.append(dirname + "/" + basename)
+        if os.path.dirname(dirname) != '/':
+            dirname = os.path.dirname(dirname) # up to parent 
+            if file_system_boundary_crossed(os.path.dirname(path), dirname):
+                break
+    if len(res) == 0:
+        IOError("'%s' not found up to file system boundary" % basename)
+    return res
+
+
+
+
 def load_run(name):
     if os.path.exists(name):
         return name, load(name)
