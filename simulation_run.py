@@ -50,7 +50,11 @@ def build_executable_if_needed(sim, rev):
     """ return the name of the executable for a given revision, build it if its not found """
     build_path = os.path.abspath(sim["build_path"])
     exe = get_executable_path(sim, rev) 
+   
     if os.path.exists(exe):
+        if git_get_sha1(sim, rev) == git_get_sha1(sim, "HEAD"):
+            if not git_is_clean(sim):
+                raise SimulationRunException("git: working directory is not clean. commit first!")
         print "Found %s." % exe
     else:
         print "%s not found. Will build it..." % exe
