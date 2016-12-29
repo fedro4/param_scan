@@ -3,10 +3,8 @@ import numpy as np
 import os
 import os.path
 import stat
-import pint
 import json
 from custom_json import json_dumper, json_hook
-from param_scan import ureg
 
 par_ext = ".params"
 run_ext = ".run"

@@ -1,5 +1,5 @@
 import re
-from param_scan import ureg
+from param_scan import pint_ureg
 
 def read_value_from_str(ostr, key):
     #f_re = r'([+-]?\d+(?:\.\d+)?(?:[eE][+-]\d+)?)'
@@ -15,7 +15,10 @@ def read_value_from_str(ostr, key):
     if i1 < 0:
         i1 = len(ostr)
     _, v = ostr[i0:i1].split("=")
-    return ureg.parse_expression(v)
+    if pint_ureg is not None:
+        return pint_ureg.parse_expression(v)
+    else:
+        return float(v)
     
 
 def read_value(filename, key):
