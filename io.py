@@ -74,7 +74,7 @@ def find_all_in_parents(path):
     while True:
         if os.path.exists(dirname + "/" + basename):
             res.append(dirname + "/" + basename)
-        if os.path.dirname(dirname) != '/':
+        if dirname != '/':
             dirname = os.path.dirname(dirname) # up to parent 
             if file_system_boundary_crossed(os.path.dirname(path), dirname):
                 break
