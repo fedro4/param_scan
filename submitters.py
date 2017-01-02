@@ -23,7 +23,7 @@ def xargs_submitter(exe_name, dir_names, param_sets, args={}):
         print >> p.stdin, dir_name, build_argstr(params)
 
     print "PID:", p.pid
-    if args.has_key("wait") and args("wait"):
+    if args.has_key("wait") and args["wait"]:
         p.communicate()
     
     if p.returncode > 0:
