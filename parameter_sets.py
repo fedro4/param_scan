@@ -1,4 +1,4 @@
-from param_scan import ureg
+from param_scan import pint_ureg
 import numpy as np
 import __builtin__
 
@@ -36,10 +36,12 @@ class Evaluator:
                     return funcs[name]
                 elif p.has_key(name):
                     if hasattr(p[name], "eval"):
-                        raise ValueError("depends on not yet eval'd Evaluator name")
+                        raise ValueError("%s is a not yet eval'd Evaluator" % name)
                     return p[name]
+                elif pint_ureg is not None:
+                    return pint_ureg.parse_expression(name)
                 else:
-                    return ureg.parse_expression(name)
+                    raise ValueError("'%s' unknown" % name)
         res = eval(self.expr, {}, MyDictReplacement()) 
         if self.when == "after_unroll" and is_iterable(res):
             raise ValueError("an after-unroll Evaluator must never evaluate to an iterable")

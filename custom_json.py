@@ -1,7 +1,6 @@
 import json
-import pint
 from parameter_sets import Evaluator
-from param_scan import ureg
+from param_scan import pint_ureg
 from datetime import datetime 
 
 dtfmt = "%Y-%m-%d %H:%M:%S.%f"
@@ -38,12 +37,13 @@ def parse_item(it):
             return it
         except ValueError:
             pass
-        # try reading a pint Quantity
-        try:
-            it = ureg.Quantity(it)
-            return it
-        except: #(pint.UndefinedUnitError):
-            pass
+        # try reading a pint Quantity, if pint exists (i.e. pint_ureg was created at module init)
+        if pint_ureg is not None:
+            try:
+                it = pint_ureg.Quantity(it)
+                return it
+            except: #(pint.UndefinedUnitError):
+                pass
         # apparently not a Quantity, Evaluator?
         for when in ['before_unroll', 'after_unroll']:
             if hasattr(it, "startswith") and it.startswith("eval_%s(" % when):
