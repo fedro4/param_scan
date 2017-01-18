@@ -36,7 +36,6 @@ def condor_submitter(exe_name, dir_names, param_sets, args={}):
 universe = vanilla
 executable = /home/fedro/bin/shim_dmtcp_rike
 kill_sig = 2
-Requirements = Machine =!= "everson.bccn-berlin.pri"
     """
     prio = 0
     if args.has_key("prio"):

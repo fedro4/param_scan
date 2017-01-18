@@ -87,7 +87,7 @@ def get_run(sim, rev, prms, data_dir, unique=False): # should a run be a class?
     return r
 
 def get_prefix(sim, prms, uniqueness, ignore_underscore=True):
-    d = {'sim': sim, 
+    d = {'sim': dict((k, v) for (k, v) in sim.items() if not (ignore_underscore and k.startswith("_"))), 
          'parameters': dict((k, v) for (k, v) in prms.items() if not (ignore_underscore and k.startswith("_"))), 
          'uniqueness': uniqueness}
     return hashlib.sha1(json.dumps(d, default=json_dumper, sort_keys=True)).hexdigest()
@@ -140,21 +140,22 @@ def submit(sim, prms, data_dir, rev="HEAD", unique=False, submitter=su.xargs_sub
 
     dir_names = []
     param_sets = []
+   
+
     for p in ps.unroll(prms):
         dir_name = os.path.abspath(data_dir + "/" + get_prefix(r['sim'], p, r['uniqueness']))
+
         if (not os.path.exists(dir_name)):
             os.makedirs(dir_name)
         if (not os.path.lexists(dir_name + "/" + r_name)):
             # this link can end up pointing into nothing due to us not being in the right dir
             os.symlink(os.path.abspath(r_name), dir_name + "/" + r_name)      
         else:
-            # check if results exist -- this should be done in a more general way
-            try:  
-                if not op.output_contains(dir_name + "/stdout", "SIMULATION COMPLETE"):
-                    op.read_value(dir_name + "/stdout", "finished")
-                continue # skip already finished ones
-            except (ValueError, IOError):
-                pass
+            if (sim.has_key("_finished_condition") and 
+               os.path.exists(dir_name + "/" + sim["_finished_condition"]["file"]) and 
+               op.output_contains(dir_name + "/" + sim["_finished_condition"]["file"], sim["_finished_condition"]["contains"])):
+                print "already finished:", dir_name, " - skipping"
+                continue
         dir_names.append(dir_name)
         param_sets.append(p)
     
