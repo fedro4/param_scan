@@ -97,19 +97,27 @@ def get_output_path(r, p, filename):
 
 # ist das in diesm modul richtig aufgehoben?
 def read_values(r, psets, valuekeys, filename, in_units=None, ignore_errors=False):
+    def inu(v, u):
+        if in_units is not None:
+            r = v / u
+        else: r = v
+        #print repr(r)
+        try:
+            return float(r)
+        except ValueError:
+            return r
+
     res = []
-    if in_units is None:
-        in_units = np.ones(len(valuekeys))
-    elif len(in_units) != len(valuekeys):
+    if in_units is not None and len(in_units) != len(valuekeys):
         raise ValueError("need valuekeys and in_units to have the same length")
     for p in psets:
         tmpvals = []
-        for k, u in zip(valuekeys, in_units):
+        for k, u in zip(valuekeys, in_units if in_units is not None else np.ones(len(valuekeys))):
             if p.has_key(k): 
-                tmpvals.append(float(p[k] / u))
+                tmpvals.append(inu(p[k], u))
             else:
                 try:
-                    tmpvals.append(float(op.read_value(get_output_path(r, p, filename), k) / u))
+                    tmpvals.append(inu(op.read_value(get_output_path(r, p, filename), k), u))
                 except Exception as e:
                     if not ignore_errors:
                         raise e
@@ -117,7 +125,8 @@ def read_values(r, psets, valuekeys, filename, in_units=None, ignore_errors=Fals
                         break
         if len(tmpvals) == len(valuekeys):
             res.append(tmpvals)
-    return np.array(zip(*res))
+    return zip(*res)
+    #return np.array(zip(*res))
 
 
 def submit(sim, prms, data_dir, rev="HEAD", unique=False, submitter=su.xargs_submitter, dry_run=False, submitter_args={}):
