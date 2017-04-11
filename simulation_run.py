@@ -7,6 +7,7 @@ from custom_json import json_dumper
 import parameter_sets as ps
 import submitters as su
 import output_parsing as op
+import dict_comparison as dc
 from datetime import datetime
 from time import sleep
 
@@ -90,7 +91,8 @@ def get_prefix(sim, prms, uniqueness, ignore_underscore=True):
     d = {'sim': dict((k, v) for (k, v) in sim.items() if not (ignore_underscore and k.startswith("_"))), 
          'parameters': dict((k, v) for (k, v) in prms.items() if not (ignore_underscore and k.startswith("_"))), 
          'uniqueness': uniqueness}
-    return hashlib.sha1(json.dumps(d, default=json_dumper, sort_keys=True)).hexdigest()
+    json.encoder.FLOAT_REPR = lambda o: format(o, '.15g') # otherwise, we get different reprs for sth like 0.1 (internally 0.10000000000000001) between (e.g.) Python 2.7.9 and Python 2.7.13 :: Anaconda 4.3.1 (64-bit), which can both be called cause /usr/bin/python is invoked in the shebang line in various scripts...
+    return  hashlib.sha1(json.dumps(d, default=json_dumper, sort_keys=True)).hexdigest()
 
 def get_output_path(r, p, filename):
     return r["data_dir"] + "/" + get_prefix(r["sim"], p, r["uniqueness"]) + "/" + filename
@@ -118,10 +120,12 @@ def read_values(r, psets, valuekeys, filename, in_units=None, ignore_errors=Fals
             else:
                 try:
                     tmpvals.append(inu(op.read_value(get_output_path(r, p, filename), k), u))
+                    print "yay: ", get_output_path(r, p, filename), dc.get_difference_to_common(p, dc.get_common(psets))
                 except Exception as e:
                     if not ignore_errors:
                         raise e
                     else:
+                        print "NAY: ", get_output_path(r, p, filename), dc.get_difference_to_common(p, dc.get_common(psets))
                         break
         if len(tmpvals) == len(valuekeys):
             res.append(tmpvals)
